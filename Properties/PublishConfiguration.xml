@@ -1,5 +1,5 @@
 ﻿<Publish>
-  <ModId Value="" />
+  <ModId Value="127507" />
   <DisplayName Value="Asset Migration Utility" />
   <ShortDescription Value="Migrate assets from one source to another seamlessly" />
   <LongDescription>## Asset Migration Utility
@@ -11,19 +11,19 @@ This mod helps you migrate your assets from one source to another by scanning th
 This is especially useful when you want to switch from local assets to PDX Mods assets or vice versa, or when a mod author has changed the mod ID of their mod. For example, when Static Ploppables moved from "Code Mod" variants to "Asset Pack" variants.
 
 How to use,
-First unsubscribe from the old version of a mod, and subscribe to the new version of the mod. As long as the Prefab Names are same, this mod will replace the missing items placed on the map with new corresponding items of the same name.
+First unsubscribe from the old version of a mod, and subscribe to the new version of the mod. As long as the Prefab Names are same (or the new prefab has the old name as Obsolete Identifiers), this mod will replace the missing items placed on the map with new corresponding items of the same name.
 This is also helpful if you're using a PDX Mods version of a mod and now wants to use local version of the assets.
   </LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <Screenshot Value="" />
   <Tag Value="Code Mod" />
   <ForumLink Value="" />
-  <ModVersion Value="1.0.0" />
+  <ModVersion Value="1.0.1" />
   <GameVersion Value="1.5*" />
   <Dependency Id="" />
   <RequiredDLC Value="" />
   <ChangeLog>
-- Initial release.
+- Add support for Obsolete Identifiers.
   </ChangeLog>
   <ExternalLink Type="github" Url="https://github.com/qstar-inc/cities2-AssetMigrationUtility" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />

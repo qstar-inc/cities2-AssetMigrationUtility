@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../../ModsPersonal/StarQ.Shared/StarQ.Shared.shproj" Id="01189e6e-61cb-4c5d-acf7-1ba0a2c819ab" />
   <Project Path="AssetMigrationUtility.csproj" />
 </Solution>
