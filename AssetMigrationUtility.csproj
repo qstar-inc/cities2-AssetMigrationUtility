@@ -3,7 +3,7 @@
     <Configurations>Debug;Release</Configurations>
     <AssemblyName>AssetMigrationUtility</AssemblyName>
     <AssemblyTitle>Asset Migration Utility</AssemblyTitle>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>StarQ</Authors>
     <!--The file where mod information which is required for publishing mod on PDX mods are stored-->
     <PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
@@ -74,6 +74,16 @@
     <None Include="$(ModPropsFile)" Link="Properties\Mod.props" />
     <None Include="$(ModTargetsFile)" Link="Properties\Mod.targets" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+  <Target Name="RunPythonPreBuild" BeforeTargets="BeforeBuild">
+    <Message Text="Running Python lang processor..." Importance="high" />
+    <Exec
+      Command="python &quot;D:\_Q\Codes\CS2 Processors\lang\create_loc_batch.py&quot;"
+      WorkingDirectory="$(ProjectDir)LocalizationSource"
+    />
+  </Target>
   <Target Name="GetAdditionalFiles" AfterTargets="DeployWIP">
     <ItemGroup>
       <AdditionalFilesToDeploy Include="Resources\**\*.*" />
@@ -83,12 +93,4 @@
       DestinationFiles="@(AdditionalFilesToDeploy-&gt;'$(DeployDir)\%(RecursiveDir)%(Filename)%(Extension)')"
     />
   </Target>
-  <ItemGroup>
-    <EmbeddedResource Include="Locale.json" />
-    <EmbeddedResource Include="Locale\*.json" />
-    <None Remove="Locale.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Locale\" />
-  </ItemGroup>
 </Project>

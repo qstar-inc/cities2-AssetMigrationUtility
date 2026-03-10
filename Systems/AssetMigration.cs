@@ -10,6 +10,7 @@ using Game;
 using Game.Common;
 using Game.Prefabs;
 using Game.Prefabs.Water;
+using Game.Routes;
 using StarQ.Shared.Extensions;
 using Unity.Collections;
 using Unity.Entities;
@@ -18,6 +19,11 @@ namespace AssetMigrationUtility.Systems
 {
     public partial class AssetMigration : GameSystemBase
     {
+        static readonly Regex PrefabRegex = new(
+            "^(.+?):(.+?)(?:\\s+\\(([A-Fa-f0-9]{32})\\))?$",
+            RegexOptions.Compiled
+        );
+
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -39,13 +45,16 @@ namespace AssetMigrationUtility.Systems
             try
             {
                 PrefabSystem prefabSystem = WorldHelper.PrefabSystem;
-                var eq3 = SystemAPI.QueryBuilder().WithAll<PrefabRef>().Build();
-                var ents3 = eq3.ToEntityArray(Allocator.Temp);
+                EntityQuery eq1 = SystemAPI.QueryBuilder().WithAll<PrefabRef>().Build();
+                NativeArray<Entity> ents1 = eq1.ToEntityArray(Allocator.Temp);
 
-                if (ents3.Length <= 0)
+                EntityQuery eq2 = SystemAPI.QueryBuilder().WithAll<VehicleModel>().Build();
+                NativeArray<Entity> ents2 = eq2.ToEntityArray(Allocator.Temp);
+
+                if (ents1.Length <= 0 && ents2.Length <= 0)
                     return;
 
-                var pm = AssetDatabase.global.GetAssets<PrefabAsset>();
+                IEnumerable<PrefabAsset> pm = AssetDatabase.global.GetAssets<PrefabAsset>();
                 Dictionary<string, PrefabBase> prefabAssets = new();
                 foreach (var pmItem in pm)
                 {
@@ -84,13 +93,13 @@ namespace AssetMigrationUtility.Systems
                     }
                 }
 
-                var sortedDict = prefabAssets
+                Dictionary<string, PrefabBase> sortedDict = prefabAssets
                     .OrderBy(x => x.Key)
                     .ToDictionary(x => x.Key, x => x.Value);
 
                 List<string> notFound = new();
 
-                foreach (var entity in ents3)
+                foreach (Entity entity in ents1)
                 {
                     try
                     {
@@ -101,18 +110,15 @@ namespace AssetMigrationUtility.Systems
                         if (isEnabled)
                             continue;
 
-                        var obs = prefabSystem.GetObsoleteID(prefabRef.m_Prefab);
+                        PrefabID obs = prefabSystem.GetObsoleteID(prefabRef.m_Prefab);
 
-                        var reg = Regex.Match(
-                            obs.ToString(),
-                            "^(.+?):(.+?)(?:\\s+\\(([A-Za-z0-9]{32})\\))?$"
-                        );
+                        Match reg = PrefabRegex.Match(obs.ToString());
 
                         if (!reg.Success)
                             continue;
 
-                        var pType = reg?.Groups[1]?.Value;
-                        var pName = reg?.Groups[2]?.Value;
+                        string pType = reg.Groups[1].Value;
+                        string pName = reg.Groups[2].Value;
 
                         if (string.IsNullOrEmpty(pType) || string.IsNullOrEmpty(pName))
                         {
@@ -122,19 +128,20 @@ namespace AssetMigrationUtility.Systems
                             );
                             continue;
                         }
+                        string prefabKey = $"{pType}:{pName}";
 
-                        if (notFound.Contains($"{pType}:{pName}"))
+                        if (notFound.Contains(prefabKey))
                             continue;
 
-                        if (!sortedDict.TryGetValue($"{pType}:{pName}", out PrefabBase pb))
+                        if (!sortedDict.TryGetValue(prefabKey, out PrefabBase pb))
                         {
-                            notFound.Add($"{pType}:{pName}");
+                            notFound.Add(prefabKey);
                             continue;
                         }
                         if (!prefabSystem.TryGetEntity(pb, out Entity prefabEntity))
                         {
                             LogHelper.SendLog(
-                                $"Failed search for {pType}:{pName} (Entity not found)",
+                                $"Failed search for {prefabKey} (Entity not found)",
                                 LogLevel.Error
                             );
                             continue;
@@ -143,13 +150,125 @@ namespace AssetMigrationUtility.Systems
                         EntityManager.SetComponentData(entity, prefabRef);
                         EntityManager.AddComponent<Updated>(prefabRef.m_Prefab);
                         EntityManager.AddComponent<Updated>(entity);
-                        LogHelper.SendLog($"Successfully swapped {pType}:{pName}");
+                        LogHelper.SendLog($"Successfully swapped {prefabKey}");
                     }
                     catch (Exception ex)
                     {
                         LogHelper.SendLog(ex, LogLevel.Error);
                     }
                 }
+
+                LogHelper.SendLog($"Starting VehicleModel migration on {ents2.Length} entities.");
+                foreach (Entity entity in ents2)
+                {
+                    try
+                    {
+                        EntityManager.TryGetBuffer(
+                            entity,
+                            false,
+                            out DynamicBuffer<VehicleModel> vehicleModel
+                        );
+
+                        LogHelper.SendLog(
+                            $"Found {vehicleModel.Length} VehicleModel entries on entity {entity}"
+                        );
+
+                        for (int i = vehicleModel.Length - 1; i >= 0; i--)
+                        {
+                            VehicleModel model = vehicleModel[i];
+                            bool removed = false;
+
+                            for (int routeIndex = 0; routeIndex < 2; routeIndex++)
+                            {
+                                Entity routeModel =
+                                    routeIndex == 0
+                                        ? model.m_PrimaryPrefab
+                                        : model.m_SecondaryPrefab;
+
+                                if (routeModel == Entity.Null)
+                                    continue;
+
+                                bool isEnabled = EntityManager.IsComponentEnabled<PrefabData>(
+                                    routeModel
+                                );
+                                if (isEnabled)
+                                    continue;
+
+                                PrefabID obs = prefabSystem.GetObsoleteID(routeModel);
+
+                                Match reg = PrefabRegex.Match(obs.ToString());
+
+                                if (!reg.Success)
+                                {
+                                    vehicleModel.RemoveAt(i);
+                                    removed = true;
+                                    break;
+                                }
+
+                                string pType = reg.Groups[1].Value;
+                                string pName = reg.Groups[2].Value;
+
+                                if (string.IsNullOrEmpty(pType) || string.IsNullOrEmpty(pName))
+                                {
+                                    LogHelper.SendLog(
+                                        $"Fail: {obs} (Unable to deduce PrefabName or PrefabType)",
+                                        LogLevel.Error
+                                    );
+
+                                    vehicleModel.RemoveAt(i);
+                                    removed = true;
+                                    break;
+                                }
+
+                                string prefabKey = $"{pType}:{pName}";
+
+                                if (notFound.Contains(prefabKey))
+                                {
+                                    vehicleModel.RemoveAt(i);
+                                    removed = true;
+                                    break;
+                                }
+
+                                if (!sortedDict.TryGetValue(prefabKey, out PrefabBase pb))
+                                {
+                                    notFound.Add(prefabKey);
+
+                                    vehicleModel.RemoveAt(i);
+                                    removed = true;
+                                    break;
+                                }
+
+                                if (!prefabSystem.TryGetEntity(pb, out Entity prefabEntity))
+                                {
+                                    LogHelper.SendLog(
+                                        $"Failed search for {prefabKey} (Entity not found)",
+                                        LogLevel.Error
+                                    );
+
+                                    vehicleModel.RemoveAt(i);
+                                    removed = true;
+                                    break;
+                                }
+
+                                if (routeIndex == 0)
+                                    model.m_PrimaryPrefab = prefabEntity;
+                                else
+                                    model.m_SecondaryPrefab = prefabEntity;
+
+                                LogHelper.SendLog($"Successfully swapped on routes {prefabKey}");
+                            }
+
+                            if (removed)
+                                continue;
+                            vehicleModel[i] = model;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogHelper.SendLog(ex, LogLevel.Error);
+                    }
+                }
+
                 if (notFound.Count > 0)
                     LogHelper.SendLog("PrefabBase not found:\n" + string.Join("\n", notFound));
             }

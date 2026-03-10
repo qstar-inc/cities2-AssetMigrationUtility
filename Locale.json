@@ -1,6 +1,0 @@
-{
-  "Options.OPTION[AssetMigrationUtility.AssetMigrationUtility.Mod.Setting.IsEnabled]": "Enable Mod",
-  "Options.OPTION_DESCRIPTION[AssetMigrationUtility.AssetMigrationUtility.Mod.Setting.IsEnabled]": "If enabled, the Asset Migration will run on startup every time a save is loaded.",
-  "Options.OPTION[AssetMigrationUtility.AssetMigrationUtility.Mod.Setting.RunOnce]": "Run Once",
-  "Options.OPTION_DESCRIPTION[AssetMigrationUtility.AssetMigrationUtility.Mod.Setting.RunOnce]": "Run the Asset Migration once manually."
-}
