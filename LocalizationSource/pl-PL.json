@@ -1,0 +1,6 @@
+{
+  "AssetMigrationUtility.StarQ_Option.IsEnabled.Label": "Aktywuj mod",
+  "AssetMigrationUtility.StarQ_Option.IsEnabled.Description": "Jeśli opcja jest włączona, migracja zasobów będzie uruchamiana za każdym razem, gdy zapis będzie wczytywany.",
+  "AssetMigrationUtility.StarQ_Option.RunOnce.Label": "Uruchom raz",
+  "AssetMigrationUtility.StarQ_Option.RunOnce.Description": "Uruchom migrację zasobów ręcznie."
+}

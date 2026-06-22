@@ -1,0 +1,2 @@
+- Update localization.
+- Minor code cleanup.

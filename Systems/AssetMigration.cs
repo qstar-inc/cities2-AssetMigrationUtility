@@ -103,7 +103,11 @@ namespace AssetMigrationUtility.Systems
                 {
                     try
                     {
-                        EntityManager.TryGetComponent(entity, out PrefabRef prefabRef);
+                        if (!EntityManager.TryGetComponent(entity, out PrefabRef prefabRef))
+                            continue;
+                        if (!EntityManager.Exists(prefabRef.m_Prefab))
+                            continue;
+
                         bool isEnabled = EntityManager.IsComponentEnabled<PrefabData>(
                             prefabRef.m_Prefab
                         );

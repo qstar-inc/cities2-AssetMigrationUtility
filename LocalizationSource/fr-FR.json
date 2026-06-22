@@ -1,0 +1,6 @@
+{
+  "AssetMigrationUtility.StarQ_Option.IsEnabled.Label": "Activer le mod",
+  "AssetMigrationUtility.StarQ_Option.IsEnabled.Description": "Si activée, la migration des assets s’exécutera au démarrage chaque fois qu’une sauvegarde est chargée.",
+  "AssetMigrationUtility.StarQ_Option.RunOnce.Label": "Exécuter une fois",
+  "AssetMigrationUtility.StarQ_Option.RunOnce.Description": "Exécuter la migration des assets une fois manuellement."
+}

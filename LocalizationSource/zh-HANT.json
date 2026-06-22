@@ -1,0 +1,6 @@
+{
+  "AssetMigrationUtility.StarQ_Option.IsEnabled.Label": "Enable Mod",
+  "AssetMigrationUtility.StarQ_Option.IsEnabled.Description": "If enabled, the Asset Migration will run on startup every time a save is loaded.",
+  "AssetMigrationUtility.StarQ_Option.RunOnce.Label": "Run Once",
+  "AssetMigrationUtility.StarQ_Option.RunOnce.Description": "Run the Asset Migration once manually."
+}

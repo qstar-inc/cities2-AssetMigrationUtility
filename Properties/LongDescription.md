@@ -1,9 +1,5 @@
-<Publish>
-  <ModId Value="127507" />
-  <DisplayName Value="Asset Migration Utility" />
-  <ShortDescription Value="Migrate assets from one source to another seamlessly." />
-  <LongDescription>## Asset Migration Utility
-Migrate assets from one source to another seamlessly
+## Asset Migration Utility
+Migrate assets from one source to another seamlessly.
 
 Since the game update 1.5.2f1, every placed assets are linked to a mod ID. This means another version of the same asset (either local or from the PDX Mods) will not be recognized as the same asset by the game.
 
@@ -15,20 +11,4 @@ Additionally, this mod also helps you clean up transport routes that are linked 
 
 How to use,
 First unsubscribe from the old version of a mod, and subscribe to the new version of the mod. As long as the Prefab Names are same (or the new prefab has the old name as Obsolete Identifiers), this mod will replace the missing items placed on the map with new corresponding items of the same name.
-This is also helpful if you're using a PDX Mods version of a mod and now wants to use local version of the assets.</LongDescription>
-  <Thumbnail Value="Properties/Thumbnail.png" />
-  <Screenshot Value="" />
-  <Tag Value="Code Mod" />
-  <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/starq-mods-assets-projects-megathread.1930389/" />
-  <ModVersion Value="1.0.3" />
-  <GameVersion Value="1.6.0*" />
-  <Dependency Id="" />
-  <RequiredDLC Value="" />
-  <ChangeLog>- Update localization.
-- Minor code cleanup.</ChangeLog>
-  <ExternalLink Type="github" Url="https://github.com/qstar-inc/cities2-AssetMigrationUtility" />
-  <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />
-  <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
-  <ExternalLink Type="crowdin" Url="https://crowdin.com/project/starq-cities2" />
-  <AccessLevel Value="Public" />
-</Publish>
+This is also helpful if you're using a PDX Mods version of a mod and now wants to use local version of the assets.
