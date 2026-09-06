@@ -20,7 +20,7 @@ This mod is not designed to remove references to all missing assets. It is only 
 This project is licensed under GPLv3 (see LICENSE). A quick summary of what that means in practice:
 
 - You're free to use, modify, and redistribute this code.
-- Any modified version you distribute must also be licensed under GPLv3 (copyleft) — you can't fold this code into a closed-source or differently-licensed mod.
+- Any modified version you distribute must also be licensed under GPLv3 (copyleft). This means you can't use this code in a closed-source project.
 - Please retain attribution to the original author when redistributing or forking.
 
 ### Forks and Redistribution
