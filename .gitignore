@@ -363,5 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Custom
-/Library/ilpp.pid
+/Library
 /Resources/Localization
