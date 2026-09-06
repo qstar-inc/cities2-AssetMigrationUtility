@@ -1,6 +1,10 @@
 {
-  "AssetMigrationUtility.StarQ_Option.IsEnabled.Label": "Enable Mod",
-  "AssetMigrationUtility.StarQ_Option.IsEnabled.Description": "If enabled, the Asset Migration will run on startup every time a save is loaded.",
-  "AssetMigrationUtility.StarQ_Option.RunOnce.Label": "Run Once",
-  "AssetMigrationUtility.StarQ_Option.RunOnce.Description": "Run the Asset Migration once manually."
+  "Option.IsEnabled.Label": "Enable Mod",
+  "Option.IsEnabled.Desc": "If enabled, the Asset Migration will run on startup every time a save is loaded.",
+  "Option.PerObjectLogging.Label": "Per Object Logging",
+  "Option.PerObjectLogging.Desc": "If enabled, the Asset Migration will log each object that is migrated. This can be useful for debugging, but may slow down the migration process.",
+  "Option.RunOnce.Label": "Run Once",
+  "Option.RunOnce.Desc": "Run the Asset Migration once manually.",
+  "Option.CleanupObsoleteEntities.Label": "Cleanup Obsolete Entities",
+  "Option.CleanupObsoleteEntities.Desc": "Cleanup obsolete entities from the game world. Triggers the game's own cleanup routine from the Developer Mode."
 }

@@ -1,4 +1,4 @@
-## Asset Migration Utility
+# Asset Migration Utility
 Migrate assets from one source to another seamlessly.
 
 Since the game update 1.5.2f1, every placed assets are linked to a mod ID. This means another version of the same asset (either local or from the PDX Mods) will not be recognized as the same asset by the game.
@@ -9,6 +9,9 @@ This is especially useful when you want to switch from local assets to PDX Mods 
 
 Additionally, this mod also helps you clean up transport routes that are linked to unsubscribed/moved assets. The route's vehicle selection dropdown will no longer show the missing items, and if there's no available vehicles already selected, you will need to reselect one, or the game will use one from the pool of all currently available vehicles.
 
-How to use,
-First unsubscribe from the old version of a mod, and subscribe to the new version of the mod. As long as the Prefab Names are same (or the new prefab has the old name as Obsolete Identifiers), this mod will replace the missing items placed on the map with new corresponding items of the same name.
+### How to use
+First unsubscribe from the old version of a mod, and subscribe to the new version of the mod. As long as the Prefab names are same (or the new Prefab has the old name as Obsolete Identifiers), this mod will replace the missing items placed on the map with new corresponding items of the same name.
 This is also helpful if you're using a PDX Mods version of a mod and now wants to use local version of the assets.
+
+### Notes
+This mod is not designed to remove references to all missing assets. It is only for migrating to new version of an asset. A button to cleanup obsolete entites is provided in the Options menu, but it triggers the same process as the Developer Mode's "Cleanup Obsolete Entities" function.

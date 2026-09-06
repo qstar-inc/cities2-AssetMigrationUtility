@@ -1,6 +1,0 @@
-{
-  "AssetMigrationUtility.StarQ_Option.IsEnabled.Label": "Activar mod",
-  "AssetMigrationUtility.StarQ_Option.IsEnabled.Description": "Al estar activado, la migración de activos se ejecutará al iniciar cada vez que se carga un guardado.",
-  "AssetMigrationUtility.StarQ_Option.RunOnce.Label": "Ejecutar una vez",
-  "AssetMigrationUtility.StarQ_Option.RunOnce.Description": "Ejecutar la migración de activos manualmente."
-}

@@ -1,6 +1,0 @@
-{
-  "AssetMigrationUtility.StarQ_Option.IsEnabled.Label": "모드 활성화",
-  "AssetMigrationUtility.StarQ_Option.IsEnabled.Description": "활성화할 경우, 저장 파일을 불러올 때마다 시작 시 에셋 마이그레이션이 실행됩니다.",
-  "AssetMigrationUtility.StarQ_Option.RunOnce.Label": "한 번 실행",
-  "AssetMigrationUtility.StarQ_Option.RunOnce.Description": "에셋 마이그레이션을 수동으로 한 번 실행합니다."
-}

@@ -1,6 +1,0 @@
-{
-  "AssetMigrationUtility.StarQ_Option.IsEnabled.Label": "启用模组",
-  "AssetMigrationUtility.StarQ_Option.IsEnabled.Description": "启用模组后，将在每次加载存档时运行资产迁移。",
-  "AssetMigrationUtility.StarQ_Option.RunOnce.Label": "运行一次",
-  "AssetMigrationUtility.StarQ_Option.RunOnce.Description": "手动运行资产迁移一次。"
-}

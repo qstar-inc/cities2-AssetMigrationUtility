@@ -1,2 +1,4 @@
-- Update localization.
-- Minor code cleanup.
+- Surface with owners are now ignored when replacing. (This might be reimplented in the future if I find a proper way to handle this.)
+- Add vanilla "Cleanup Obsolete Entities" button to the Options menu.
+- Minor code improvements.
+- Conversion to latest model of mod localization flow.

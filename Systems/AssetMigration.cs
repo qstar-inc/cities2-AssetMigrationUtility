@@ -56,7 +56,7 @@ namespace AssetMigrationUtility.Systems
 
                 IEnumerable<PrefabAsset> pm = AssetDatabase.global.GetAssets<PrefabAsset>();
                 Dictionary<string, PrefabBase> prefabAssets = new();
-                foreach (var pmItem in pm)
+                foreach (PrefabAsset pmItem in pm)
                 {
                     PrefabBase? prefabBase = pmItem.GetInstance<PrefabBase>();
 
@@ -85,7 +85,7 @@ namespace AssetMigrationUtility.Systems
                     {
                         if (obs.m_PrefabIdentifiers.Length > 0)
                         {
-                            foreach (var item in obs.m_PrefabIdentifiers)
+                            foreach (PrefabIdentifierInfo item in obs.m_PrefabIdentifiers)
                             {
                                 prefabAssets[$"{item.m_Type}:{item.m_Name}"] = prefabBase;
                             }
@@ -93,11 +93,9 @@ namespace AssetMigrationUtility.Systems
                     }
                 }
 
-                Dictionary<string, PrefabBase> sortedDict = prefabAssets
-                    .OrderBy(x => x.Key)
-                    .ToDictionary(x => x.Key, x => x.Value);
+                HashSet<string> notFound = new();
 
-                List<string> notFound = new();
+                int skipped = 0;
 
                 foreach (Entity entity in ents1)
                 {
@@ -108,49 +106,38 @@ namespace AssetMigrationUtility.Systems
                         if (!EntityManager.Exists(prefabRef.m_Prefab))
                             continue;
 
-                        bool isEnabled = EntityManager.IsComponentEnabled<PrefabData>(
-                            prefabRef.m_Prefab
-                        );
-                        if (isEnabled)
+                        if (
+                            !TryResolvePrefab(
+                                prefabRef.m_Prefab,
+                                prefabAssets,
+                                notFound,
+                                prefabSystem,
+                                out Entity resolvedEntity,
+                                out PrefabBase pb,
+                                out string prefabKey
+                            )
+                        )
                             continue;
 
-                        PrefabID obs = prefabSystem.GetObsoleteID(prefabRef.m_Prefab);
-
-                        Match reg = PrefabRegex.Match(obs.ToString());
-
-                        if (!reg.Success)
-                            continue;
-
-                        string pType = reg.Groups[1].Value;
-                        string pName = reg.Groups[2].Value;
-
-                        if (string.IsNullOrEmpty(pType) || string.IsNullOrEmpty(pName))
+                        if (pb is SurfacePrefab)
                         {
+                            if (EntityManager.TryGetComponent(entity, out Owner owner))
+                            {
+                                LogHelper.SendLog(
+                                    $"Skipping {prefabKey} because it is owned by {owner.m_Owner}"
+                                );
+                                skipped++;
+                                continue;
+                            }
+                        }
+
+                        if (Mod.m_Setting.PerObjectLogging)
                             LogHelper.SendLog(
-                                $"Fail: {obs} (Unable to deduce PrefabName or PrefabType)",
-                                LogLevel.Error
+                                $"Swapping {prefabRef.m_Prefab} with {resolvedEntity} for {prefabKey}",
+                                LogLevel.DEV
                             );
-                            continue;
-                        }
-                        string prefabKey = $"{pType}:{pName}";
 
-                        if (notFound.Contains(prefabKey))
-                            continue;
-
-                        if (!sortedDict.TryGetValue(prefabKey, out PrefabBase pb))
-                        {
-                            notFound.Add(prefabKey);
-                            continue;
-                        }
-                        if (!prefabSystem.TryGetEntity(pb, out Entity prefabEntity))
-                        {
-                            LogHelper.SendLog(
-                                $"Failed search for {prefabKey} (Entity not found)",
-                                LogLevel.Error
-                            );
-                            continue;
-                        }
-                        prefabRef.m_Prefab = prefabEntity;
+                        prefabRef.m_Prefab = resolvedEntity;
                         EntityManager.SetComponentData(entity, prefabRef);
                         EntityManager.AddComponent<Updated>(prefabRef.m_Prefab);
                         EntityManager.AddComponent<Updated>(entity);
@@ -167,14 +154,24 @@ namespace AssetMigrationUtility.Systems
                 {
                     try
                     {
-                        EntityManager.TryGetBuffer(
-                            entity,
-                            false,
-                            out DynamicBuffer<VehicleModel> vehicleModel
-                        );
+                        if (
+                            !EntityManager.TryGetBuffer(
+                                entity,
+                                false,
+                                out DynamicBuffer<VehicleModel> vehicleModel
+                            )
+                        )
+                        {
+                            LogHelper.SendLog(
+                                $"Failed to get VehicleModel buffer on {entity}",
+                                LogLevel.Error
+                            );
+                            continue;
+                        }
 
                         LogHelper.SendLog(
-                            $"Found {vehicleModel.Length} VehicleModel entries on entity {entity}"
+                            $"Found {vehicleModel.Length} VehicleModel entries on {entity}",
+                            LogLevel.DEVD
                         );
 
                         for (int i = vehicleModel.Length - 1; i >= 0; i--)
@@ -192,74 +189,32 @@ namespace AssetMigrationUtility.Systems
                                 if (routeModel == Entity.Null)
                                     continue;
 
-                                bool isEnabled = EntityManager.IsComponentEnabled<PrefabData>(
-                                    routeModel
-                                );
-                                if (isEnabled)
-                                    continue;
-
-                                PrefabID obs = prefabSystem.GetObsoleteID(routeModel);
-
-                                Match reg = PrefabRegex.Match(obs.ToString());
-
-                                if (!reg.Success)
+                                if (
+                                    !TryResolvePrefab(
+                                        routeModel,
+                                        prefabAssets,
+                                        notFound,
+                                        prefabSystem,
+                                        out Entity resolvedEntity,
+                                        out PrefabBase pb,
+                                        out string prefabKey
+                                    )
+                                )
                                 {
-                                    vehicleModel.RemoveAt(i);
-                                    removed = true;
-                                    break;
-                                }
-
-                                string pType = reg.Groups[1].Value;
-                                string pName = reg.Groups[2].Value;
-
-                                if (string.IsNullOrEmpty(pType) || string.IsNullOrEmpty(pName))
-                                {
-                                    LogHelper.SendLog(
-                                        $"Fail: {obs} (Unable to deduce PrefabName or PrefabType)",
-                                        LogLevel.Error
-                                    );
-
-                                    vehicleModel.RemoveAt(i);
-                                    removed = true;
-                                    break;
-                                }
-
-                                string prefabKey = $"{pType}:{pName}";
-
-                                if (notFound.Contains(prefabKey))
-                                {
-                                    vehicleModel.RemoveAt(i);
-                                    removed = true;
-                                    break;
-                                }
-
-                                if (!sortedDict.TryGetValue(prefabKey, out PrefabBase pb))
-                                {
-                                    notFound.Add(prefabKey);
-
-                                    vehicleModel.RemoveAt(i);
-                                    removed = true;
-                                    break;
-                                }
-
-                                if (!prefabSystem.TryGetEntity(pb, out Entity prefabEntity))
-                                {
-                                    LogHelper.SendLog(
-                                        $"Failed search for {prefabKey} (Entity not found)",
-                                        LogLevel.Error
-                                    );
-
                                     vehicleModel.RemoveAt(i);
                                     removed = true;
                                     break;
                                 }
 
                                 if (routeIndex == 0)
-                                    model.m_PrimaryPrefab = prefabEntity;
+                                    model.m_PrimaryPrefab = resolvedEntity;
                                 else
-                                    model.m_SecondaryPrefab = prefabEntity;
+                                    model.m_SecondaryPrefab = resolvedEntity;
 
-                                LogHelper.SendLog($"Successfully swapped on routes {prefabKey}");
+                                if (Mod.m_Setting.PerObjectLogging)
+                                    LogHelper.SendLog(
+                                        $"Successfully swapped on routes {prefabKey}"
+                                    );
                             }
 
                             if (removed)
@@ -274,7 +229,9 @@ namespace AssetMigrationUtility.Systems
                 }
 
                 if (notFound.Count > 0)
-                    LogHelper.SendLog("PrefabBase not found:\n" + string.Join("\n", notFound));
+                    LogHelper.SendLog(
+                        "PrefabBase not found:\n" + string.Join("\n", notFound.OrderBy(x => x))
+                    );
             }
             catch (Exception ex)
             {
@@ -289,6 +246,64 @@ namespace AssetMigrationUtility.Systems
                     $"Migration process completed in {stopwatch.Elapsed.Duration()}s"
                 );
             }
+        }
+
+        private bool TryResolvePrefab(
+            Entity source,
+            Dictionary<string, PrefabBase> prefabAssets,
+            HashSet<string> notFound,
+            PrefabSystem prefabSystem,
+            out Entity resolvedEntity,
+            out PrefabBase prefabBase,
+            out string prefabKey
+        )
+        {
+            resolvedEntity = Entity.Null;
+            prefabBase = null;
+            prefabKey = null;
+
+            if (EntityManager.IsComponentEnabled<PrefabData>(source))
+                return false;
+
+            PrefabID obs = prefabSystem.GetObsoleteID(source);
+            Match reg = PrefabRegex.Match(obs.ToString());
+
+            if (!reg.Success)
+                return false;
+
+            string pType = reg.Groups[1].Value;
+            string pName = reg.Groups[2].Value;
+
+            if (string.IsNullOrEmpty(pType) || string.IsNullOrEmpty(pName))
+            {
+                LogHelper.SendLog(
+                    $"Fail: {obs} (Unable to deduce PrefabName or PrefabType)",
+                    LogLevel.Error
+                );
+                return false;
+            }
+
+            prefabKey = $"{pType}:{pName}";
+
+            if (notFound.Contains(prefabKey))
+                return false;
+
+            if (!prefabAssets.TryGetValue(prefabKey, out prefabBase))
+            {
+                notFound.Add(prefabKey);
+                return false;
+            }
+
+            if (!prefabSystem.TryGetEntity(prefabBase, out resolvedEntity))
+            {
+                LogHelper.SendLog(
+                    $"Failed search for {prefabKey} (Entity not found)",
+                    LogLevel.Error
+                );
+                return false;
+            }
+
+            return true;
         }
     }
 }

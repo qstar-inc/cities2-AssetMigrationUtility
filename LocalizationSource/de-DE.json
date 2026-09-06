@@ -1,6 +1,0 @@
-{
-  "AssetMigrationUtility.StarQ_Option.IsEnabled.Label": "Mod aktivieren",
-  "AssetMigrationUtility.StarQ_Option.IsEnabled.Description": "Wenn diese Option aktiviert ist, wird die Asset-Migration bei jedem Laden eines gespeicherten Spiels beim Start ausgeführt.",
-  "AssetMigrationUtility.StarQ_Option.RunOnce.Label": "Einmal ausführen",
-  "AssetMigrationUtility.StarQ_Option.RunOnce.Description": "Führen Sie die Asset-Migration einmal manuell durch."
-}

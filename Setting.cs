@@ -1,42 +1,36 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Reflection;
 using AssetMigrationUtility.Systems;
-using Colossal;
-using Colossal.IO.AssetDatabase;
 using Colossal.Json;
+using Colossal.Reflection.Tests;
+using Game.Debug;
 using Game.Modding;
+using Game.Prefabs;
 using Game.Settings;
-using Game.UI;
-using Game.UI.Widgets;
 using StarQ.Shared.Extensions;
+using StarQ.Shared.Generators;
 using Unity.Entities;
 
 namespace AssetMigrationUtility
 {
-    [FileLocation("ModsSettings\\StarQ\\" + nameof(AssetMigrationUtility))]
-    [SettingsUITabOrder(GeneralTab, AboutTab, LogTab)]
-    public class Setting : ModSetting
+    [GenerateSettingCommonAttribute]
+    public partial class Setting : ModSetting
     {
-        public Setting(IMod mod)
-            : base(mod) => SetDefaults();
-
-        public const string GeneralTab = "GeneralTab";
-        public const string GeneralGroup = "GeneralGroup";
-
-        public const string AboutTab = "AboutTab";
-        public const string InfoGroup = "InfoGroup";
-
-        public const string LogTab = "LogTab";
-
-        [Exclude]
-        [SettingsUIHidden]
-        public bool IsInGame => WorldHelper.IsGame;
+        public override void SetDefaults()
+        {
+            IsEnabled = true;
+            PerObjectLogging = false;
+        }
 
         [SettingsUISection(GeneralTab, GeneralGroup)]
         public bool IsEnabled { get; set; } = true;
 
+        [SettingsUISection(GeneralTab, GeneralGroup)]
+        public bool PerObjectLogging { get; set; } = false;
+
         [SettingsUIButton]
         [SettingsUISection(GeneralTab, GeneralGroup)]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsInGame), true)]
+        [SettingsUIDisableByCondition(typeof(WorldHelper), nameof(WorldHelper.IsGame), true)]
         public bool RunOnce
         {
             set
@@ -47,54 +41,33 @@ namespace AssetMigrationUtility
             }
         }
 
-        public override void SetDefaults()
-        {
-            IsEnabled = true;
-        }
-
-        [SettingsUISection(AboutTab, InfoGroup)]
-        public string NameText => Mod.Name;
-
-        [SettingsUISection(AboutTab, InfoGroup)]
-        public string VersionText => VariableHelper.AddDevSuffix(Mod.Version);
-
-        [SettingsUISection(AboutTab, InfoGroup)]
-        public string AuthorText => VariableHelper.StarQ;
-
         [SettingsUIButton]
-        [SettingsUIButtonGroup("Social")]
-        [SettingsUISection(AboutTab, InfoGroup)]
-        public bool BMaCLink
+        [SettingsUISection(GeneralTab, GeneralGroup)]
+        [SettingsUIDisableByCondition(typeof(WorldHelper), nameof(WorldHelper.IsGame), true)]
+        public bool CleanupObsoleteEntities
         {
-            set => VariableHelper.OpenBMAC();
-        }
+            set
+            {
+                try
+                {
+                    LogHelper.SendLog(
+                        "Forwarding cleanup request for obsolete entities to the DebugSystem..."
+                    );
+                    MethodInfo method = typeof(DebugSystem).GetMethod(
+                        "CleanupObsoleteEntities",
+                        BindingFlags.Instance | BindingFlags.NonPublic
+                    );
 
-        //[SettingsUIButton]
-        //[SettingsUIButtonGroup("Social")]
-        //[SettingsUISection(AboutTab, InfoGroup)]
-        //public bool Discord
-        //{
-        //    set => VariableHelper.OpenDiscord();
-        //}
-
-        [SettingsUIMultilineText]
-        [SettingsUIDisplayName(typeof(LogHelper), nameof(LogHelper.LogText))]
-        [SettingsUISection(LogTab, "")]
-        public string LogText => string.Empty;
-
-        [Exclude]
-        [SettingsUIHidden]
-        public bool IsLogMissing
-        {
-            get => VariableHelper.CheckLog(Mod.Id);
-        }
-
-        [SettingsUIButton]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(IsLogMissing))]
-        [SettingsUISection(LogTab, "")]
-        public bool OpenLog
-        {
-            set => VariableHelper.OpenLog(Mod.Id);
+                    method.Invoke(WorldHelper.GetSystem<DebugSystem>(), null);
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.SendLog(
+                        $"Failed to invoke CleanupObsoleteEntities: {ex.Message}",
+                        LogLevel.Error
+                    );
+                }
+            }
         }
     }
 }
