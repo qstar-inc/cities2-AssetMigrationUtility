@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using AssetMigrationUtility.Types;
 using Colossal.Entities;
 using Colossal.IO.AssetDatabase;
 using Colossal.Serialization.Entities;
@@ -106,17 +107,19 @@ namespace AssetMigrationUtility.Systems
                         if (!EntityManager.Exists(prefabRef.m_Prefab))
                             continue;
 
-                        if (
-                            !TryResolvePrefab(
-                                prefabRef.m_Prefab,
-                                prefabAssets,
-                                notFound,
-                                prefabSystem,
-                                out Entity resolvedEntity,
-                                out PrefabBase pb,
-                                out string prefabKey
-                            )
-                        )
+                        PrefabResolveState state = TryResolvePrefab(
+                            prefabRef.m_Prefab,
+                            prefabAssets,
+                            notFound,
+                            prefabSystem,
+                            out Entity resolvedEntity,
+                            out PrefabBase pb,
+                            out string prefabKey
+                        );
+                        if (state != PrefabResolveState.Missing)
+                            continue;
+
+                        if (prefabRef.m_Prefab == resolvedEntity)
                             continue;
 
                         if (pb is SurfacePrefab)
@@ -189,17 +192,20 @@ namespace AssetMigrationUtility.Systems
                                 if (routeModel == Entity.Null)
                                     continue;
 
-                                if (
-                                    !TryResolvePrefab(
-                                        routeModel,
-                                        prefabAssets,
-                                        notFound,
-                                        prefabSystem,
-                                        out Entity resolvedEntity,
-                                        out PrefabBase pb,
-                                        out string prefabKey
-                                    )
-                                )
+                                PrefabResolveState state = TryResolvePrefab(
+                                    routeModel,
+                                    prefabAssets,
+                                    notFound,
+                                    prefabSystem,
+                                    out Entity resolvedEntity,
+                                    out PrefabBase pb,
+                                    out string prefabKey
+                                );
+
+                                if (state == PrefabResolveState.Valid)
+                                    continue;
+
+                                if (state == PrefabResolveState.Missing)
                                 {
                                     vehicleModel.RemoveAt(i);
                                     removed = true;
@@ -248,7 +254,7 @@ namespace AssetMigrationUtility.Systems
             }
         }
 
-        private bool TryResolvePrefab(
+        private PrefabResolveState TryResolvePrefab(
             Entity source,
             Dictionary<string, PrefabBase> prefabAssets,
             HashSet<string> notFound,
@@ -263,13 +269,13 @@ namespace AssetMigrationUtility.Systems
             prefabKey = null;
 
             if (EntityManager.IsComponentEnabled<PrefabData>(source))
-                return false;
+                return PrefabResolveState.Valid;
 
             PrefabID obs = prefabSystem.GetObsoleteID(source);
             Match reg = PrefabRegex.Match(obs.ToString());
 
             if (!reg.Success)
-                return false;
+                return PrefabResolveState.Missing;
 
             string pType = reg.Groups[1].Value;
             string pName = reg.Groups[2].Value;
@@ -280,18 +286,18 @@ namespace AssetMigrationUtility.Systems
                     $"Fail: {obs} (Unable to deduce PrefabName or PrefabType)",
                     LogLevel.Error
                 );
-                return false;
+                return PrefabResolveState.Missing;
             }
 
             prefabKey = $"{pType}:{pName}";
 
             if (notFound.Contains(prefabKey))
-                return false;
+                return PrefabResolveState.Missing;
 
             if (!prefabAssets.TryGetValue(prefabKey, out prefabBase))
             {
                 notFound.Add(prefabKey);
-                return false;
+                return PrefabResolveState.Missing;
             }
 
             if (!prefabSystem.TryGetEntity(prefabBase, out resolvedEntity))
@@ -300,10 +306,10 @@ namespace AssetMigrationUtility.Systems
                     $"Failed search for {prefabKey} (Entity not found)",
                     LogLevel.Error
                 );
-                return false;
+                return PrefabResolveState.Missing;
             }
 
-            return true;
+            return PrefabResolveState.Resolved;
         }
     }
 }
