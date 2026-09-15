@@ -116,7 +116,8 @@ namespace AssetMigrationUtility.Systems
                             out PrefabBase pb,
                             out string prefabKey
                         );
-                        if (state != PrefabResolveState.Missing)
+
+                        if (state != PrefabResolveState.Resolved)
                             continue;
 
                         if (prefabRef.m_Prefab == resolvedEntity)

@@ -1,1 +1,1 @@
-- Fix line vehicles being reset on every load.
+- Compatibility update for 1.6.2f1.

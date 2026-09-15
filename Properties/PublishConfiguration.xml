@@ -23,11 +23,11 @@ This mod is not designed to remove references to all missing assets. It is only 
   <Screenshot Value="" />
   <Tag Value="Code Mod" />
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/starq-mods-assets-projects-megathread.1930389/" />
-  <ModVersion Value="1.0.5" />
-  <GameVersion Value="1.6.0*" />
+  <ModVersion Value="1.0.6" />
+  <GameVersion Value="1.6.2*" />
   <Dependency Id="" />
   <RequiredDLC Value="" />
-  <ChangeLog>- Fix line vehicles being reset on every load.</ChangeLog>
+  <ChangeLog>- Compatibility update for 1.6.2f1.</ChangeLog>
   <ExternalLink Type="github" Url="https://github.com/qstar-inc/cities2-AssetMigrationUtility" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />
