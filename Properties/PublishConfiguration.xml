@@ -17,17 +17,21 @@ Additionally, this mod also helps you clean up transport routes that are linked 
 First unsubscribe from the old version of a mod, and subscribe to the new version of the mod. As long as the Prefab names are same (or the new Prefab has the old name as Obsolete Identifiers), this mod will replace the missing items placed on the map with new corresponding items of the same name.
 This is also helpful if you're using a PDX Mods version of a mod and now wants to use local version of the assets.
 
+### Debug Tools
+- "Cleanup Obsolete Entities": A button which it triggers the Developer Mode method "Cleanup Obsolete Entities". Useful for removing all unloaded/unsubscribed assets.
+- "Remove Extra Companies": A button which it triggers the Developer Mode method "Remove Extra Companies". Useful for removing unplayable stutter introduced for some players with game version 1.6.2f1.
+
 ### Notes
-This mod is not designed to remove references to all missing assets. It is only for migrating to new version of an asset. A button to cleanup obsolete entites is provided in the Options menu, but it triggers the same process as the Developer Mode's "Cleanup Obsolete Entities" function.</LongDescription>
+This mod is not designed to remove references to all missing assets. It is primarily for migrating to new version of an asset.</LongDescription>
   <Thumbnail Value="Properties/Thumbnail.png" />
   <Screenshot Value="" />
   <Tag Value="Code Mod" />
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/starq-mods-assets-projects-megathread.1930389/" />
-  <ModVersion Value="1.0.6" />
+  <ModVersion Value="1.0.7" />
   <GameVersion Value="1.6.2*" />
   <Dependency Id="" />
   <RequiredDLC Value="" />
-  <ChangeLog>- Compatibility update for 1.6.2f1.</ChangeLog>
+  <ChangeLog>- Add "Remove Extra Companies" button. Use this button after loading in on your save to fix the simulation stuttering that appeared out of nowhere with game version 1.6.2f1.</ChangeLog>
   <ExternalLink Type="github" Url="https://github.com/qstar-inc/cities2-AssetMigrationUtility" />
   <ExternalLink Type="discord" Url="https://discord.gg/U2PSjUzUuF" />
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/starq" />

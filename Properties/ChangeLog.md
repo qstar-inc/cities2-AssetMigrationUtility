@@ -1,1 +1,1 @@
-- Compatibility update for 1.6.2f1.
+- Add "Remove Extra Companies" button. Use this button after loading in on your save to fix the simulation stuttering that appeared out of nowhere with game version 1.6.2f1.

@@ -1,4 +1,5 @@
 {
+  "OptionGroup.DebugGroup": "Debug Tools",
   "Option.IsEnabled.Label": "Enable Mod",
   "Option.IsEnabled.Desc": "If enabled, the Asset Migration will run on startup every time a save is loaded.",
   "Option.PerObjectLogging.Label": "Per Object Logging",
@@ -6,5 +7,7 @@
   "Option.RunOnce.Label": "Run Migration Once",
   "Option.RunOnce.Desc": "Run the asset migration once manually.",
   "Option.CleanupObsoleteEntities.Label": "Cleanup Obsolete Entities",
-  "Option.CleanupObsoleteEntities.Desc": "Cleanup obsolete entities from the game world. Triggers the game's own cleanup routine from the Developer Mode."
+  "Option.CleanupObsoleteEntities.Desc": "Cleanup obsolete entities from the game world. Triggers the game's own cleanup routine from the Developer Mode.",
+  "Option.RemoveExtraCompanies.Label": "Remove Extra Companies",
+  "Option.RemoveExtraCompanies.Desc": "Remove extra companies from the game world. Having a lot of extra companies can make the game unstable and unplayable. Triggers the game's own cleanup routine from the Developer Mode."
 }

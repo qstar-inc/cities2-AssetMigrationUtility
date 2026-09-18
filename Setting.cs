@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using AssetMigrationUtility.Systems;
-using Colossal.Json;
-using Colossal.Reflection.Tests;
 using Game.Debug;
 using Game.Modding;
-using Game.Prefabs;
 using Game.Settings;
 using StarQ.Shared.Extensions;
 using StarQ.Shared.Generators;
@@ -14,6 +11,7 @@ using Unity.Entities;
 namespace AssetMigrationUtility
 {
     [GenerateSettingCommonAttribute]
+    [SettingsUIShowGroupName(DebugGroup, AboutModGroup)]
     public partial class Setting : ModSetting
     {
         public override void SetDefaults()
@@ -21,6 +19,8 @@ namespace AssetMigrationUtility
             IsEnabled = true;
             PerObjectLogging = false;
         }
+
+        public const string DebugGroup = "DebugGroup";
 
         [SettingsUISection(GeneralTab, GeneralGroup)]
         public bool IsEnabled { get; set; } = true;
@@ -42,7 +42,7 @@ namespace AssetMigrationUtility
         }
 
         [SettingsUIButton]
-        [SettingsUISection(GeneralTab, GeneralGroup)]
+        [SettingsUISection(GeneralTab, DebugGroup)]
         [SettingsUIDisableByCondition(typeof(WorldHelper), nameof(WorldHelper.IsGame), true)]
         public bool CleanupObsoleteEntities
         {
@@ -66,7 +66,37 @@ namespace AssetMigrationUtility
                         $"Failed to invoke CleanupObsoleteEntities: {ex.Message}",
                         LogLevel.Error
                     );
+                    return;
                 }
+
+                LogHelper.SendLog("Done");
+            }
+        }
+
+        [SettingsUIButton]
+        [SettingsUISection(GeneralTab, DebugGroup)]
+        [SettingsUIDisableByCondition(typeof(WorldHelper), nameof(WorldHelper.IsGame), true)]
+        public bool RemoveExtraCompanies
+        {
+            set
+            {
+                try
+                {
+                    LogHelper.SendLog(
+                        "Forwarding cleanup request for extra companies to the DebugSystem..."
+                    );
+                    EconomyDebugSystem.RemoveExtraCompanies();
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.SendLog(
+                        $"Failed to invoke RemoveExtraCompanies: {ex.Message}",
+                        LogLevel.Error
+                    );
+                    return;
+                }
+
+                LogHelper.SendLog("Done");
             }
         }
     }
